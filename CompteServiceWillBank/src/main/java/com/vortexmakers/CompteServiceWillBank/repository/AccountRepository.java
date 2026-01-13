@@ -8,10 +8,10 @@ package com.vortexmakers.CompteServiceWillBank.repository;
  *
  * @author DELL
  */
-
 import com.vortexmakers.CompteServiceWillBank.entity.Account;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -21,5 +21,7 @@ public interface AccountRepository extends JpaRepository<Account, UUID> {
             UUID customerId,
             Account.AccountType type
     );
+    
+    // NOUVEAU : Récupérer tous les comptes d'un client
+    List<Account> findByCustomerId(UUID customerId);
 }
-
