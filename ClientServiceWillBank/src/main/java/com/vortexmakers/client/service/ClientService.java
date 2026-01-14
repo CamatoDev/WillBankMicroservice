@@ -8,8 +8,9 @@ package com.vortexmakers.client.service;
  *
  * @author DELL
  */
-
 import com.vortexmakers.client.entity.Client;
+import com.vortexmakers.client.event.ClientSuspendedEvent;
+import com.vortexmakers.client.event.EventPublisher;
 import com.vortexmakers.client.repository.ClientRepository;
 import org.springframework.stereotype.Service;
 
@@ -21,13 +22,14 @@ import java.util.UUID;
 public class ClientService {
 
     private final ClientRepository clientRepository;
+    private final EventPublisher eventPublisher;
 
-    public ClientService(ClientRepository clientRepository) {
+    public ClientService(ClientRepository clientRepository, EventPublisher eventPublisher) {
         this.clientRepository = clientRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     public Client createClient(Client client) {
-        // Si le front n’envoie rien
         if (client.getAddress() == null) {
             client.setAddress("N/A");
         }
@@ -67,6 +69,14 @@ public class ClientService {
         clientRepository.findById(id).ifPresent(client -> {
             client.setStatus(Client.Status.SUSPENDED);
             clientRepository.save(client);
+
+            // Publier l'événement
+            ClientSuspendedEvent event = new ClientSuspendedEvent(
+                    client.getId(),
+                    client.getEmail(),
+                    "Client suspendu par le système"
+            );
+            eventPublisher.publishClientSuspended(event);
         });
     }
 
@@ -77,4 +87,3 @@ public class ClientService {
         });
     }
 }
-

@@ -132,4 +132,18 @@ public class AccountService {
         account.setUpdatedAt(LocalDateTime.now());
         repository.save(account);
     }
+    
+    // Bloquer tous les comptes d'un client (événement ClientSuspended)
+    public void blockAccountsByCustomerId(UUID customerId) {
+        List<Account> accounts = repository.findByCustomerId(customerId);
+
+        for (Account account : accounts) {
+            if (account.getStatus() == Account.AccountStatus.ACTIVE) {
+                account.setStatus(Account.AccountStatus.BLOCKED);
+                account.setUpdatedAt(LocalDateTime.now());
+                repository.save(account);
+                System.out.println("Compte " + account.getId() + " bloqué");
+            }
+        }
+    }
 }
