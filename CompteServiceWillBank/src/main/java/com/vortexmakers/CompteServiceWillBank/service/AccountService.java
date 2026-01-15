@@ -9,12 +9,13 @@ package com.vortexmakers.CompteServiceWillBank.service;
  * @author DELL
  */
 import com.vortexmakers.CompteServiceWillBank.client.ClientDto;
-import com.vortexmakers.CompteServiceWillBank.dto.BalanceUpdateRequest;
 import com.vortexmakers.CompteServiceWillBank.client.ClientFeignClient;
+import com.vortexmakers.CompteServiceWillBank.dto.BalanceUpdateRequest;
 import com.vortexmakers.CompteServiceWillBank.entity.Account;
+import com.vortexmakers.CompteServiceWillBank.event.AccountCreatedEvent;
+import com.vortexmakers.CompteServiceWillBank.event.EventPublisher;
 import com.vortexmakers.CompteServiceWillBank.repository.AccountRepository;
 import feign.FeignException;
-import java.math.BigDecimal;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -26,10 +27,14 @@ public class AccountService {
 
     private final AccountRepository repository;
     private final ClientFeignClient clientFeignClient;
+    private final EventPublisher eventPublisher;
 
-    public AccountService(AccountRepository repository, ClientFeignClient clientFeignClient) {
+    public AccountService(AccountRepository repository, 
+                         ClientFeignClient clientFeignClient,
+                         EventPublisher eventPublisher) {
         this.repository = repository;
         this.clientFeignClient = clientFeignClient;
+        this.eventPublisher = eventPublisher;
     }
 
     public Account createAccount(Account account) {
@@ -38,7 +43,6 @@ public class AccountService {
         try {
             ClientDto client = clientFeignClient.getClientById(account.getCustomerId());
             
-            // Vérifier que le client est actif
             if (!"ACTIVE".equals(client.getStatus())) {
                 throw new IllegalStateException(
                     "Impossible de créer un compte pour un client non actif"
@@ -71,7 +75,18 @@ public class AccountService {
         account.setStatus(Account.AccountStatus.ACTIVE);
         account.setCreatedAt(LocalDateTime.now());
 
-        return repository.save(account);
+        Account savedAccount = repository.save(account);
+
+        // Publier l'événement AccountCreated
+        AccountCreatedEvent event = new AccountCreatedEvent(
+                savedAccount.getId(),
+                savedAccount.getCustomerId(),
+                savedAccount.getType().name(),
+                savedAccount.getBalance()
+        );
+        eventPublisher.publishAccountCreated(event);
+
+        return savedAccount;
     }
 
     public List<Account> getAll() {
@@ -85,7 +100,6 @@ public class AccountService {
                 );
     }
     
-    // Récupérer les comptes d'un client
     public List<Account> getByCustomerId(UUID customerId) {
         return repository.findByCustomerId(customerId);
     }
@@ -104,8 +118,7 @@ public class AccountService {
 
         repository.save(account);
     }
-    
-    // Mise à jour du solde (appelé par le Transaction Service)
+
     public void updateBalance(UUID accountId, BalanceUpdateRequest request) {
         Account account = getById(accountId);
 
@@ -113,15 +126,14 @@ public class AccountService {
             throw new IllegalStateException("Le compte n'est pas actif");
         }
 
-        BigDecimal newBalance;
+        java.math.BigDecimal newBalance;
 
         if ("ADD".equals(request.getOperation())) {
             newBalance = account.getBalance().add(request.getAmount());
         } else if ("SUBTRACT".equals(request.getOperation())) {
             newBalance = account.getBalance().subtract(request.getAmount());
 
-            // Vérification pas de solde négatif
-            if (newBalance.compareTo(BigDecimal.ZERO) < 0) {
+            if (newBalance.compareTo(java.math.BigDecimal.ZERO) < 0) {
                 throw new IllegalStateException("Solde insuffisant");
             }
         } else {
@@ -132,8 +144,7 @@ public class AccountService {
         account.setUpdatedAt(LocalDateTime.now());
         repository.save(account);
     }
-    
-    // Bloquer tous les comptes d'un client (événement ClientSuspended)
+
     public void blockAccountsByCustomerId(UUID customerId) {
         List<Account> accounts = repository.findByCustomerId(customerId);
 

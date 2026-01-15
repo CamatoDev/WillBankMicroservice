@@ -10,6 +10,7 @@ package com.vortexmakers.client.service;
  */
 import com.vortexmakers.client.entity.Client;
 import com.vortexmakers.client.event.ClientSuspendedEvent;
+import com.vortexmakers.client.event.ClientCreatedEvent;
 import com.vortexmakers.client.event.EventPublisher;
 import com.vortexmakers.client.repository.ClientRepository;
 import org.springframework.stereotype.Service;
@@ -41,8 +42,20 @@ public class ClientService {
         if (client.getCreatedBy() == null) {
             client.setCreatedBy("SYSTEM");
         }
-        
-        return clientRepository.save(client);
+
+        Client savedClient = clientRepository.save(client);
+
+        // Publier l'événement ClientCreated
+        ClientCreatedEvent event = new ClientCreatedEvent(
+                savedClient.getId(),
+                savedClient.getFirstName(),
+                savedClient.getLastName(),
+                savedClient.getEmail(),
+                savedClient.getPhone()
+        );
+        eventPublisher.publishClientCreated(event);
+
+        return savedClient;
     }
 
     public Optional<Client> getClientById(UUID id) {

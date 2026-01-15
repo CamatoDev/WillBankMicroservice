@@ -12,12 +12,13 @@ import com.vortexmakers.TransactionServiceWillBank.client.AccountDto;
 import com.vortexmakers.TransactionServiceWillBank.client.AccountFeignClient;
 import com.vortexmakers.TransactionServiceWillBank.client.BalanceUpdateRequest;
 import com.vortexmakers.TransactionServiceWillBank.entity.Transaction;
+import com.vortexmakers.TransactionServiceWillBank.event.EventPublisher;
+import com.vortexmakers.TransactionServiceWillBank.event.TransactionCompletedEvent;
 import com.vortexmakers.TransactionServiceWillBank.repository.TransactionRepository;
 import feign.FeignException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -26,10 +27,14 @@ public class TransactionService {
 
     private final TransactionRepository repository;
     private final AccountFeignClient accountFeignClient;
+    private final EventPublisher eventPublisher;
 
-    public TransactionService(TransactionRepository repository, AccountFeignClient accountFeignClient) {
+    public TransactionService(TransactionRepository repository, 
+                             AccountFeignClient accountFeignClient,
+                             EventPublisher eventPublisher) {
         this.repository = repository;
         this.accountFeignClient = accountFeignClient;
+        this.eventPublisher = eventPublisher;
     }
 
     public Transaction create(Transaction transaction) {
@@ -45,7 +50,6 @@ public class TransactionService {
 
             // Vérifier les règles métier selon le type de transaction
             if (transaction.getType() == Transaction.TransactionType.WITHDRAWAL) {
-                // Vérification du solde suffisant pour retrait
                 if (account.getBalance().compareTo(transaction.getAmount()) < 0) {
                     transaction.setStatus(Transaction.TransactionStatus.FAILED);
                     transaction.setFailureReason("Solde insuffisant");
@@ -64,7 +68,6 @@ public class TransactionService {
                     operation = "SUBTRACT";
                     break;
                 case TRANSFER:
-                    // Pour un transfert on suppose qu'on débite le compte
                     operation = "SUBTRACT";
                     break;
                 default:
@@ -80,22 +83,30 @@ public class TransactionService {
 
             // Marquer la transaction comme réussie
             transaction.setStatus(Transaction.TransactionStatus.SUCCESS);
-            return repository.save(transaction);
+            Transaction savedTransaction = repository.save(transaction);
+
+            // Publier l'événement TransactionCompleted
+            TransactionCompletedEvent event = new TransactionCompletedEvent(
+                    savedTransaction.getId(),
+                    savedTransaction.getAccountId(),
+                    savedTransaction.getType().name(),
+                    savedTransaction.getAmount()
+            );
+            eventPublisher.publishTransactionCompleted(event);
+
+            return savedTransaction;
 
         } catch (FeignException.NotFound e) {
-            // Compte introuvable
             transaction.setStatus(Transaction.TransactionStatus.FAILED);
             transaction.setFailureReason("Compte introuvable");
             return repository.save(transaction);
 
         } catch (FeignException e) {
-            // Erreur lors de la communication avec le Compte Service
             transaction.setStatus(Transaction.TransactionStatus.FAILED);
             transaction.setFailureReason("Erreur lors de la mise à jour du solde : " + e.getMessage());
             return repository.save(transaction);
 
         } catch (Exception e) {
-            // Toute autre erreur
             transaction.setStatus(Transaction.TransactionStatus.FAILED);
             transaction.setFailureReason("Erreur interne : " + e.getMessage());
             return repository.save(transaction);
