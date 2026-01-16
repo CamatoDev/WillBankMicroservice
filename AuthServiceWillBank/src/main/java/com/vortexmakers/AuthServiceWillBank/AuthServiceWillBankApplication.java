@@ -18,4 +18,8 @@ public class AuthServiceWillBankApplication {
   "email": "camato@willbank.com",
   "password": "administrator"
   "token": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiVVNFUiIsInN1YiI6ImNhbWF0byIsImlhdCI6MTc2ODUxMjM1NiwiZXhwIjoxNzY4NTk4NzU2fQ.AOFgUC1lKKVX2Mg3CvhjOdbhKVgbak4MZQ2uKK10vRo"
+  {
+  "username": "bob",
+  "password": "password123"
+  }
 */
