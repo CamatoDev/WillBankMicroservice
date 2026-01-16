@@ -22,4 +22,9 @@ public class AuthServiceWillBankApplication {
   "username": "bob",
   "password": "password123"
   }
+{
+  "username": "cam",
+  "password": "12345678"
+  }
+
 */
