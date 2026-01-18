@@ -37,6 +37,10 @@ public class TransactionService {
         this.eventPublisher = eventPublisher;
     }
 
+    public List<Transaction> getAll() {
+        return repository.findAll();
+    }
+
     public Transaction create(Transaction transaction) {
         try {
             // Vérifier que le compte existe et est actif
@@ -115,5 +119,61 @@ public class TransactionService {
 
     public List<Transaction> getByAccount(UUID accountId) {
         return repository.findByAccountId(accountId);
+    }
+
+    // Méthode pour effectuer un dépôt
+    public Transaction deposit(UUID accountId, BigDecimal amount) {
+        Transaction transaction = new Transaction();
+        transaction.setAccountId(accountId);
+        transaction.setAmount(amount);
+        transaction.setType(Transaction.TransactionType.DEPOSIT);
+        return create(transaction);
+    }
+
+    // Méthode pour effectuer un retrait
+    public Transaction withdraw(UUID accountId, BigDecimal amount) {
+        Transaction transaction = new Transaction();
+        transaction.setAccountId(accountId);
+        transaction.setAmount(amount);
+        transaction.setType(Transaction.TransactionType.WITHDRAWAL);
+        return create(transaction);
+    }
+
+    // Méthode pour effectuer un virement
+    public Transaction transfer(UUID sourceAccountId, UUID targetAccountId, BigDecimal amount) {
+        // D'abord, retirer du compte source
+        Transaction withdrawTransaction = new Transaction();
+        withdrawTransaction.setAccountId(sourceAccountId);
+        withdrawTransaction.setAmount(amount);
+        withdrawTransaction.setType(Transaction.TransactionType.TRANSFER);
+        Transaction sourceResult = create(withdrawTransaction);
+
+        // Si le retrait a réussi, créditer le compte cible
+        if (sourceResult.getStatus() == Transaction.TransactionStatus.SUCCESS) {
+            try {
+                // Créditer le compte cible
+                BalanceUpdateRequest creditRequest = new BalanceUpdateRequest(amount, "ADD");
+                accountFeignClient.updateBalance(targetAccountId, creditRequest);
+
+                // Créer une transaction de dépôt pour le compte cible
+                Transaction depositTransaction = new Transaction();
+                depositTransaction.setAccountId(targetAccountId);
+                depositTransaction.setAmount(amount);
+                depositTransaction.setType(Transaction.TransactionType.DEPOSIT);
+                depositTransaction.setStatus(Transaction.TransactionStatus.SUCCESS);
+                repository.save(depositTransaction);
+
+            } catch (Exception e) {
+                // En cas d'échec, annuler le retrait (rollback)
+                BalanceUpdateRequest rollbackRequest = new BalanceUpdateRequest(amount, "ADD");
+                accountFeignClient.updateBalance(sourceAccountId, rollbackRequest);
+                
+                sourceResult.setStatus(Transaction.TransactionStatus.FAILED);
+                sourceResult.setFailureReason("Échec du crédit sur le compte cible : " + e.getMessage());
+                return repository.save(sourceResult);
+            }
+        }
+
+        return sourceResult;
     }
 }

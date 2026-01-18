@@ -13,7 +13,7 @@ export const dashboardService = {
       // Récupérer les données de tous les services
       const [customers, accounts, transactions] = await Promise.all([
         api.get('/client-service/clients'),
-        api.get('/account-service/accounts'),
+        api.get('/compte-service/accounts'),
         api.get('/transaction-service/transactions')
       ]);
 

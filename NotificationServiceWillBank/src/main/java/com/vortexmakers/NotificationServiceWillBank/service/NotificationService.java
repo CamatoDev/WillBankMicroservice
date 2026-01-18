@@ -24,6 +24,11 @@ public class NotificationService {
         this.repository = repository;
     }
 
+    // Récupérer toutes les notifications
+    public List<Notification> getAll() {
+        return repository.findAll();
+    }
+
     // Créer et persister une notification
     public Notification createNotification(UUID customerId, 
                                           Notification.NotificationChannel channel,
@@ -43,6 +48,14 @@ public class NotificationService {
     // Récupérer toutes les notifications d'un client
     public List<Notification> getNotificationsByCustomerId(UUID customerId) {
         return repository.findByCustomerIdOrderByCreatedAtDesc(customerId);
+    }
+
+    // Marquer une notification comme lue
+    public void markAsRead(UUID notificationId) {
+        repository.findById(notificationId).ifPresent(notification -> {
+            notification.setStatus(Notification.NotificationStatus.READ);
+            repository.save(notification);
+        });
     }
 
     // Marquer une notification comme échouée

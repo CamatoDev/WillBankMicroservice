@@ -104,7 +104,50 @@ public class AccountService {
         return repository.findByCustomerId(customerId);
     }
 
-    public void closeAccount(UUID id) {
+    // Geler un compte
+    public Account freezeAccount(UUID id) {
+        Account account = getById(id);
+
+        if (account.getStatus() == Account.AccountStatus.CLOSED) {
+            throw new IllegalStateException("Impossible de geler un compte fermé");
+        }
+
+        account.setStatus(Account.AccountStatus.FROZEN);
+        account.setUpdatedAt(LocalDateTime.now());
+
+        return repository.save(account);
+    }
+
+    // Bloquer un compte
+    public Account blockAccount(UUID id) {
+        Account account = getById(id);
+
+        if (account.getStatus() == Account.AccountStatus.CLOSED) {
+            throw new IllegalStateException("Impossible de bloquer un compte fermé");
+        }
+
+        account.setStatus(Account.AccountStatus.BLOCKED);
+        account.setUpdatedAt(LocalDateTime.now());
+
+        return repository.save(account);
+    }
+
+    // Activer un compte
+    public Account activateAccount(UUID id) {
+        Account account = getById(id);
+
+        if (account.getStatus() == Account.AccountStatus.CLOSED) {
+            throw new IllegalStateException("Impossible d'activer un compte fermé");
+        }
+
+        account.setStatus(Account.AccountStatus.ACTIVE);
+        account.setUpdatedAt(LocalDateTime.now());
+
+        return repository.save(account);
+    }
+
+    // Fermer un compte
+    public Account closeAccount(UUID id) {
         Account account = getById(id);
 
         if (account.getBalance().signum() != 0) {
@@ -116,7 +159,7 @@ public class AccountService {
         account.setStatus(Account.AccountStatus.CLOSED);
         account.setUpdatedAt(LocalDateTime.now());
 
-        repository.save(account);
+        return repository.save(account);
     }
 
     public void updateBalance(UUID accountId, BalanceUpdateRequest request) {

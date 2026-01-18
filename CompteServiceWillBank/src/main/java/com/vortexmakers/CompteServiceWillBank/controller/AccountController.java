@@ -50,14 +50,66 @@ public class AccountController {
         }
     }
     
-    // NOUVEAU : Récupérer les comptes d'un client
+    // Récupérer les comptes d'un client
     @GetMapping("/customer/{customerId}")
     public ResponseEntity<List<Account>> getByCustomerId(@PathVariable UUID customerId) {
         return ResponseEntity.ok(service.getByCustomerId(customerId));
     }
 
+    // Geler un compte
+    @PutMapping("/{id}/freeze")
+    public ResponseEntity<Account> freeze(@PathVariable UUID id) {
+        try {
+            Account account = service.freezeAccount(id);
+            return ResponseEntity.ok(account);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    // Bloquer un compte
+    @PutMapping("/{id}/block")
+    public ResponseEntity<Account> block(@PathVariable UUID id) {
+        try {
+            Account account = service.blockAccount(id);
+            return ResponseEntity.ok(account);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    // Activer un compte
+    @PutMapping("/{id}/activate")
+    public ResponseEntity<Account> activate(@PathVariable UUID id) {
+        try {
+            Account account = service.activateAccount(id);
+            return ResponseEntity.ok(account);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    // Fermer un compte
+    @PutMapping("/{id}/close")
+    public ResponseEntity<Account> close(@PathVariable UUID id) {
+        try {
+            Account account = service.closeAccount(id);
+            return ResponseEntity.ok(account);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> close(@PathVariable UUID id) {
+    public ResponseEntity<Void> delete(@PathVariable UUID id) {
         try {
             service.closeAccount(id);
             return ResponseEntity.ok().build();

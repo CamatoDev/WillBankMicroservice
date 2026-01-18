@@ -1,6 +1,6 @@
 import api from './api';
 
-const ACCOUNT_BASE_URL = '/account-service/accounts';
+const ACCOUNT_BASE_URL = '/compte-service/accounts';
 
 export const accountService = {
   // Récupérer tous les comptes

@@ -50,6 +50,7 @@ public class Notification {
 
     public enum NotificationStatus {
         SENT,
+        READ,
         FAILED
     }
 
