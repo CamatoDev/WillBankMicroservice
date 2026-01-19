@@ -142,7 +142,7 @@ export default function AccountDetail() {
               <div className="text-5xl font-bold">
                 {account.balance.toLocaleString('fr-FR', { 
                   style: 'currency', 
-                  currency: 'EUR' 
+                  currency: 'XOF' 
                 })}
               </div>
             </div>
@@ -221,7 +221,7 @@ export default function AccountDetail() {
                         {transaction.type === 'DEPOSIT' ? '+' : '-'}
                         {transaction.amount.toLocaleString('fr-FR', { 
                           style: 'currency', 
-                          currency: 'EUR' 
+                          currency: 'XOF' 
                         })}
                       </p>
                       <span className={`text-xs px-2 py-1 rounded-full ${
@@ -252,7 +252,7 @@ export default function AccountDetail() {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-2">
-                  Montant (€)
+                  Montant (F CFA)
                 </label>
                 <input
                   type="number"
@@ -296,7 +296,7 @@ export default function AccountDetail() {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-2">
-                  Montant (€)
+                  Montant (F CFA)
                 </label>
                 <input
                   type="number"
@@ -311,7 +311,7 @@ export default function AccountDetail() {
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                   Solde disponible: {account.balance.toLocaleString('fr-FR', { 
                     style: 'currency', 
-                    currency: 'EUR' 
+                    currency: 'XOF' 
                   })}
                 </p>
               </div>

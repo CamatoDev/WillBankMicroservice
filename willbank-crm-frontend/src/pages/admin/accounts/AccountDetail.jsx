@@ -152,7 +152,7 @@ export default function AccountDetail() {
   const formatCurrency = (value) => {
     return new Intl.NumberFormat('fr-FR', {
       style: 'currency',
-      currency: 'EUR'
+      currency: 'XOF'
     }).format(value);
   };
 
@@ -473,7 +473,7 @@ export default function AccountDetail() {
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium mb-2">
-              Montant (€)
+              Montant (F CFA)
             </label>
             <input
               type="number"

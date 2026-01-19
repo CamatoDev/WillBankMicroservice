@@ -129,8 +129,8 @@ export default function Dashboard() {
           <div className="text-5xl font-bold mb-2">
             {totalBalance.toLocaleString('fr-FR', { 
               style: 'currency', 
-              currency: 'EUR' 
-            })}
+              currency: 'XOF' 
+            })} FCFA
           </div>
           <p className="text-white/60 text-sm">
             {accounts.length} compte{accounts.length > 1 ? 's' : ''} actif{accounts.length > 1 ? 's' : ''}
@@ -175,7 +175,7 @@ export default function Dashboard() {
                 <div className="text-3xl font-bold text-primary-600 dark:text-primary-400">
                   {account.balance.toLocaleString('fr-FR', { 
                     style: 'currency', 
-                    currency: 'EUR' 
+                    currency: 'XOF' 
                   })}
                 </div>
               </div>
@@ -229,7 +229,7 @@ export default function Dashboard() {
                         {transaction.type === 'DEPOSIT' ? '+' : '-'}
                         {transaction.amount.toLocaleString('fr-FR', { 
                           style: 'currency', 
-                          currency: 'EUR' 
+                          currency: 'XOF' 
                         })}
                       </p>
                       <span className={`text-xs px-2 py-1 rounded-full ${

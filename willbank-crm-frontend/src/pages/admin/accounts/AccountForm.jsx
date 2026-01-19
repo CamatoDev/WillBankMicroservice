@@ -279,7 +279,7 @@ export default function AccountForm() {
           {/* Initial Balance */}
           <div>
             <label className="block text-sm font-medium mb-2">
-              Solde initial (€)
+              Solde initial (F CFA)
             </label>
             <input
               type="number"

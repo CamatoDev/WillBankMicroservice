@@ -159,7 +159,7 @@ export default function TransactionForm() {
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('fr-FR', {
       style: 'currency',
-      currency: 'EUR'
+      currency: 'XOF'
     }).format(amount);
   };
 
@@ -446,7 +446,7 @@ export default function TransactionForm() {
           {/* Amount */}
           <div>
             <label className="block text-sm font-medium mb-2">
-              Montant (€) <span className="text-red-500">*</span>
+              Montant (FCFA) <span className="text-red-500">*</span>
             </label>
             <input
               type="number"
