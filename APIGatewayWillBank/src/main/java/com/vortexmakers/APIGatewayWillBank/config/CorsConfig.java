@@ -25,10 +25,13 @@ public class CorsConfig {
         
         // Configuration des origines autorisées
         corsConfig.setAllowedOrigins(Arrays.asList(
-            "http://localhost:5173",        // frontend React Native
-            "http://localhost:5174",        // frontend React Native
+            "http://127.0.0.1:*",           // Tous les ports 127.0.0.1
+            "http://localhost:5173",        // frontend React Native (Admin)
+            "http://localhost:5174",        // frontend React Native (Client)
             "http://localhost:3000",        // Autre frontend potentiel
-            "http://localhost:8081"         // Pour les tests
+            "http://localhost:8087",        // Expo Web
+            "http://10.0.2.2:*",            // Android Emulator
+            "http://192.168.*.*:*"          // Devices sur réseau local
         ));
         
         // Configuration des méthodes HTTP autorisées
