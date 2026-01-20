@@ -52,8 +52,9 @@ public class AuthService {
     }
 
     // Authentifier et générer un token JWT
-    public String login(String username, String password) {
-        User user = userRepository.findByUsername(username)
+    public String login(String usernameOrEmail, String password) {
+        User user = userRepository.findByUsername(usernameOrEmail)
+                .or(() -> userRepository.findByEmail(usernameOrEmail))
                 .orElseThrow(() -> new IllegalArgumentException("Utilisateur introuvable"));
 
         // Vérifier le mot de passe

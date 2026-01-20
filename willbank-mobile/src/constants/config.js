@@ -1,18 +1,22 @@
 // ==========================================
 // src/constants/config.js
-// Compatible WEB + ANDROID EMULATOR
+// Compatible WEB + ANDROID EMULATOR + PHYSICAL DEVICE
 // ==========================================
 
 import { Platform } from 'react-native';
+import Constants from 'expo-constants';
 
 // 🌐 API Gateway (unique point d’entrée)
 const WEB_URL = 'http://localhost:8080';
 const ANDROID_EMULATOR_URL = 'http://10.0.2.2:8080';
+const PHYSICAL_DEVICE_URL = Constants.expoConfig?.extra?.API_BASE_URL || 'http://192.168.8.184:8080';
 
 // 🔁 Sélection automatique selon la plateforme
 export const API_BASE_URL =
   Platform.OS === 'web'
     ? WEB_URL
+    : Platform.OS === 'android' && Constants.expoConfig?.extra?.API_BASE_URL
+    ? PHYSICAL_DEVICE_URL
     : ANDROID_EMULATOR_URL;
 
 // ================= ENDPOINTS =================

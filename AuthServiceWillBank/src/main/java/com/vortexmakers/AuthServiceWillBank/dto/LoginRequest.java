@@ -10,24 +10,33 @@ package com.vortexmakers.AuthServiceWillBank.dto;
  */
 public class LoginRequest {
 
-    private String username;
+    private String usernameOrEmail;
     private String password;
 
     public LoginRequest() {}
 
-    public LoginRequest(String username, String password) {
-        this.username = username;
+    public LoginRequest(String usernameOrEmail, String password) {
+        this.usernameOrEmail = usernameOrEmail;
         this.password = password;
     }
 
     // GETTERS et SETTERS
 
+    public String getUsernameOrEmail() {
+        return usernameOrEmail;
+    }
+
+    public void setUsernameOrEmail(String usernameOrEmail) {
+        this.usernameOrEmail = usernameOrEmail;
+    }
+
+    // For backward compatibility
     public String getUsername() {
-        return username;
+        return usernameOrEmail;
     }
 
     public void setUsername(String username) {
-        this.username = username;
+        this.usernameOrEmail = username;
     }
 
     public String getPassword() {
