@@ -9,7 +9,7 @@ import Constants from 'expo-constants';
 // 🌐 API Gateway (unique point d’entrée)
 const WEB_URL = 'http://localhost:8080';
 const ANDROID_EMULATOR_URL = 'http://10.0.2.2:8080';
-const PHYSICAL_DEVICE_URL = Constants.expoConfig?.extra?.API_BASE_URL || 'http://192.168.8.184:8080';
+const PHYSICAL_DEVICE_URL = Constants.expoConfig?.extra?.API_BASE_URL || 'http://192.168.1.142:8080';
 
 // 🔁 Sélection automatique selon la plateforme
 export const API_BASE_URL =
